@@ -14,7 +14,7 @@ const replaceHtml = (regex, replacement, elements) => {
 
 const uncommentTransparansiNilai = () => {
   if (!shouldRun()) return;
-    const TransparansiNilaiElement = /<!--\s*(<a href="https:\/\/siakadu\.unesa\.ac\.id\/mahasiswa\/khs\.html\?rincian_nilai=1&id_smt=&id=[a-zA-Z0-9-]+" class="btn btn-primary btn-sm" target="_blank"><i class=" icon-eye"><\/i> Transparansi Nilai<\/a>)\s*-->/g;
+    const TransparansiNilaiElement = /<!--\s*(<a href="https:\/\/siakadu\.unesa\.ac\.id\/mahasiswa\/khs\.html\?transparansi_nilai=1&id_smt=&id=[a-zA-Z0-9-]+" class="btn btn-primary btn-sm" target="_blank"><i class=" icon-eye"><\/i> Transparansi Nilai<\/a>)\s*-->/g;
     const allElements = document.body.getElementsByTagName('*');
     replaceHtml(TransparansiNilaiElement, '$1', allElements);
 };
