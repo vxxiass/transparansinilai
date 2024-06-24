@@ -1,0 +1,72 @@
+const shouldRun = () => {
+const urlCondition = window.location.href.split('?')[1] === 'home=1' || !window.location.href.startsWith('https://sindig.unesa.ac.id/kuliah/');
+    return !urlCondition;
+};
+
+const replaceHtml = (regex, replacement, elements) => {
+    Array.from(elements).forEach(el => {
+        const newHtml = el.innerHTML.replace(regex, replacement);
+        if (el.innerHTML !== newHtml) {
+            el.innerHTML = newHtml;
+        }
+    });
+};
+
+const uncommentTransparansiNilai = () => {
+  if (!shouldRun()) return;
+    const TransparansiNilaiElement = /<!--\s*(<a href="https:\/\/siakadu\.unesa\.ac\.id\/mahasiswa\/khs\.html\?rincian_nilai=1&id_smt=&id=[a-zA-Z0-9-]+" class="btn btn-primary btn-sm" target="_blank"><i class=" icon-eye"><\/i> Transparansi Nilai<\/a>)\s*-->/g;
+    const allElements = document.body.getElementsByTagName('*');
+    replaceHtml(TransparansiNilaiElement, '$1', allElements);
+};
+
+const fixMethodGetTansparansiNilai = () => {
+    if (!shouldRun()) return;
+    let h4 = document.querySelector('#listkhsku > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > span > h4');
+    let year = h4.innerText.split(' ')[4].split('/')[0];
+    let periodical = h4.innerText.split(' ')[5] === 'Gasal' ? '1' : '2';
+    const TransparansiNilaiElement = /(<a href="https:\/\/siakadu\.unesa\.ac\.id\/mahasiswa\/khs\.html\?rincian_nilai=1&amp;id_smt=&amp;id=[a-zA-Z0-9-]+" class="btn btn-primary btn-sm" target="_blank"><i class=" icon-eye"><\/i> Transparansi Nilai<\/a>)/g;
+    const allElements = document.body.getElementsByTagName('*');
+    let sampleHref;
+ Array.from(allElements).forEach(el => {
+        let newHtml = el.innerHTML;
+        let match;
+        while ((match = TransparansiNilaiElement.exec(el.innerHTML)) !== null) {
+            const link = match[1];
+            const id = link.split('id=')[1].split('"')[0];
+            const newLink = link.replace(/id_smt=&amp;/g, `id_smt=${year}${periodical}&amp;`);
+            newHtml = newHtml.replace(link, newLink);
+            if (periodical == '2'){
+                periodical = '1';
+                year = parseInt(year) + 1;
+            }
+            else {
+                periodical = '2';
+            }
+            sampleHref = 'https://siakadu.unesa.ac.id/mahasiswa/khs.html?transparansi_nilai=0&id_smt=' + year + periodical + '&id=' + id;
+        }
+        if (el.innerHTML !== newHtml) {
+            el.innerHTML = newHtml;
+        }
+    });
+    return sampleHref;
+};
+
+const addNewSiakaduButton = (sampleHref) => {
+    if (!shouldRun()) return;
+    const xpath = '/html/body/div[1]/div/div[2]/div[2]/div[1]/div[2]/div/div/div/div/div[2]/div[2]/div[1]/div[1]/div/span/form/a';
+    const newButton = document.createElement('a');
+    newButton.setAttribute('class', 'btn btn-primary btn-kecil');
+    newButton.setAttribute('href', sampleHref);
+    newButton.setAttribute('target', '_blank');
+    newButton.innerHTML = '<i class=" icon-eye"></i> Open in siakadu';
+    newButton.style.margin="2px";
+    const xpathResult = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+    const form = xpathResult.singleNodeValue;
+    form.parentNode.insertBefore(newButton, form.nextSibling);
+};
+
+setTimeout(() => {
+    uncommentTransparansiNilai();
+    const sampleHref = fixMethodGetRincianNilai();
+    addNewSiakaduButton(sampleHref);
+}, 2000);
